@@ -1,0 +1,5 @@
+C:\Users\Joshua\documents\visual studio 2010\Projects\ECSSS_Documenter\ECSSS_Documenter\bin\Release\ECSSS_Documenter.exe
+C:\Users\Joshua\documents\visual studio 2010\Projects\ECSSS_Documenter\ECSSS_Documenter\bin\Release\ECSSS_Documenter.pdb
+C:\Users\Joshua\documents\visual studio 2010\Projects\ECSSS_Documenter\ECSSS_Documenter\obj\x86\Release\ResolveAssemblyReference.cache
+C:\Users\Joshua\documents\visual studio 2010\Projects\ECSSS_Documenter\ECSSS_Documenter\obj\x86\Release\ECSSS_Documenter.exe
+C:\Users\Joshua\documents\visual studio 2010\Projects\ECSSS_Documenter\ECSSS_Documenter\obj\x86\Release\ECSSS_Documenter.pdb
