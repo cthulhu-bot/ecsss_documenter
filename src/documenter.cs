@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -8,34 +9,70 @@ namespace ECSSS_Documenter
 {
     class Documenter
     {
-        public static string ecsss_root_source { get; private set; }
+        public const string ecsss_root_source = @"C:\ECSSS\csss";
         public const string docs_root_destination = @"C:\ECSSS\csss\docs";
 
         static void Main(string[] args)
         {
-            ecsss_root_source = @"C:\ECSSS\csss";
             string[] ecsss_root_files = Directory.GetFiles(ecsss_root_source);
             string[] ecsss_root_dirs = Directory.GetDirectories(ecsss_root_source);
-
-            foreach (string s in ecsss_root_files)
-            {
-                Console.WriteLine(s);
-            }
-            foreach (string s in ecsss_root_dirs)
-            {
-                Console.WriteLine(s);
-            }
+            string[] current_files;
 
             if (!Directory.Exists(docs_root_destination))
             {
                 Directory.CreateDirectory(docs_root_destination);
             }
 
+            foreach (string s in ecsss_root_files)
+            {
+                current_files = s.Split('\\');
+                //Console.WriteLine(current_files[current_files.Length - 1]);
+            }
+            foreach (string s in ecsss_root_dirs)
+            {
+//                Console.WriteLine(s);
+            }
 
+            foreach (string s in ecsss_root_files)
+            {
+                //Console.WriteLine(docs_root_destination + s);
+            }
 
-
+            FileSystem fs = new FileSystem(ecsss_root_source, 0);
             Console.WriteLine("Press any key to continue...");
             Console.ReadLine();
+        }
+    }
+
+    /// <summary>
+    /// Class:  FileSystem
+    /// Description:  Crawls the root directory and creates a list containing sublists
+    /// which contain sublists (etc) representing the tree structure of the filesystem 
+    /// starting at the root directory passed to the constructor.
+    /// </summary>
+    class FileSystem
+    {
+        public static List<FileSystem> directories { get; set; }
+
+        public FileSystem(string rootPath, int depth)
+        {
+            getDirStructure(rootPath, depth);
+        }
+
+        public static List<FileSystem> getDirStructure(string rootPath, int depth)
+        {
+            string[] rootDirs = Directory.GetDirectories(rootPath);
+            foreach (string s in rootDirs)
+            {
+                string foo = s;
+                for (int i = 0; i < depth; i++)
+                {
+                    foo = " " + foo;
+                }
+                Console.WriteLine(foo);
+                FileSystem fs = new FileSystem(s, ++depth);
+            }
+            return directories;
         }
     }
 }
