@@ -4,6 +4,7 @@ using System.Collections;
 using System.Linq;
 using System.Text;
 using System.IO;
+using NUnit.Framework;
 
 namespace ECSSS_Documenter
 {
