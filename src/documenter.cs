@@ -53,6 +53,20 @@ namespace ECSSS_Documenter
     class FileSystem
     {
         public static List<FileSystem> directories { get; set; }
+        public static string[] restrictedDirectories = {
+                                                          "CVS"
+                                                          ,"reports"
+                                                          ,"reports_2008"
+                                                          ,"reports_2010"
+                                                          ,"report_builder"
+                                                          ,"logs"
+                                                          ,"build"
+                                                      };
+        public static string[] targetDirectories = { 
+                                                       "web"
+                                                       ,"src"
+                                                       ,"pages"
+                                                   };
 
         public FileSystem(string rootPath, int depth)
         {
@@ -61,7 +75,22 @@ namespace ECSSS_Documenter
 
         public static List<FileSystem> getDirStructure(string rootPath, int depth)
         {
-            string[] rootDirs = Directory.GetDirectories(rootPath);
+            List<string> rootDirs = Directory.GetDirectories(rootPath).ToList();
+            List<string> dirsTemp = new List<string>();
+            foreach (string s in rootDirs)
+            {
+                dirsTemp.Add(s);
+            }
+
+            foreach (string s in dirsTemp)
+            {
+                string[] pathParts = s.Split('\\');
+                if (!targetDirectories.Contains(pathParts[pathParts.Length - 1]))
+                {
+                    rootDirs.Remove(s);
+                }
+            }
+
             foreach (string s in rootDirs)
             {
                 string foo = s;
