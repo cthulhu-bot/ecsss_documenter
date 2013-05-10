@@ -55,15 +55,6 @@ namespace ECSSS_Documenter
     class FileSystem
     {
         public static List<FileSystem> directories { get; set; }
-        public static string[] restrictedDirectories = {
-                                                          "CVS"
-                                                          ,"reports"
-                                                          ,"reports_2008"
-                                                          ,"reports_2010"
-                                                          ,"report_builder"
-                                                          ,"logs"
-                                                          ,"build"
-                                                      };
         public static string[] targetDirectories = { 
                                                        "web"
                                                        ,"src"
@@ -74,48 +65,29 @@ namespace ECSSS_Documenter
         public FileSystem(string rootPath)
         {
             root = rootPath;
-            getDirStructure(rootPath);
+            getDirStructure(root);
         }
 
         public List<FileSystem> getDirStructure(string rootPath)
         {
             List<string> rootDirs = Directory.GetDirectories(rootPath).ToList();
-            foreach (string s in rootDirs)
-            {
-                Console.WriteLine(s + "\nLast Index: " + s.LastIndexOf('\\') + "\nLength: " + s.Length);
-                Console.WriteLine(s.Substring(s.LastIndexOf('\\') - 1, s.Length - 1));
-            }
-            //rootDirs.RemoveAll(r => !targetDirectories.Contains(r.Substring(r.LastIndexOf('\\') - 1, r.Length)));
-            // Need a list to compare the original list to in order to remove directories you don't wish to scan
-            //List<string> dirsTemp = new List<string>();
-
-            // Need to manually add list elements from one list to the comparing list
-            // Attempting to set one list = to another only makes both pointers point to the same list (i think)
-            //foreach (string s in rootDirs)
-            //{
-            //    dirsTemp.Add(s);
-            //}
-
-            //foreach (string s in rootDirs)
-            //{
-            //    string[] pathParts = s.Split('\\');
-            //    rootDirs.RemoveAll(r => !targetDirectories.Contains(pathParts[pathParts.Length - 1]));
-            //    //if (!targetDirectories.Contains(pathParts[pathParts.Length - 1]))
-            //    //{
-            //    //    rootDirs.Remove(s);
-            //    //}
-            //}
+            // Remove all directories except those contained in the targetDirectories array
+            rootDirs.RemoveAll(r => !targetDirectories.Any(r.Substring(r.LastIndexOf('\\') + 1, r.Length - r.LastIndexOf('\\') - 1).Contains));
 
             foreach (string s in rootDirs)
             {
                 List<string> files = getCurrentPathFiles(s);
-                string foo = s.PadLeft(calculateDirectoryDepth() + s.Length, ' ');
-                //Console.WriteLine(foo);
+                // Recursively continue iterating through the filesystem by creating new instances of the FileSystem class
                 FileSystem fs = new FileSystem(s);
             }
             return directories;
         }
 
+        /// <summary>
+        /// Name:  getRootPathFiles
+        /// Description:  Get all files in the class's root directory
+        /// </summary>
+        /// <returns></returns>
         public List<string> getRootPathFiles()
         {
             string[] root_files = Directory.GetFiles(root);
@@ -123,6 +95,12 @@ namespace ECSSS_Documenter
             return files;
         }
 
+        /// <summary>
+        /// Name:  getCurrentPathFiles
+        /// Description:  Get all files contained in the path parameter
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public List<string> getCurrentPathFiles(string path)
         {
             string[] root_files = Directory.GetFiles(path);
