@@ -60,8 +60,13 @@ namespace ECSSS_Documenter
                                                        ,"src"
                                                        ,"pages"
                                                    };
+        public List<string> rootFiles { get; set; }
         public string root {get; private set; }
 
+        /// <summary>
+        /// Public constructor initializes root directory structure
+        /// </summary>
+        /// <param name="rootPath"></param>
         public FileSystem(string rootPath)
         {
             root = rootPath;
@@ -76,7 +81,13 @@ namespace ECSSS_Documenter
 
             foreach (string s in rootDirs)
             {
-                List<string> files = getCurrentPathFiles(s);
+                rootFiles = getCurrentPathFiles(s);
+                Console.WriteLine(s.PadLeft(calculateDirectoryDepth() + s.Length, ' '));
+                foreach (string f in rootFiles)
+                {
+                    Console.WriteLine(f.PadLeft(calculateDirectoryDepth() + f.Length, ' '));
+                }
+
                 // Recursively continue iterating through the filesystem by creating new instances of the FileSystem class
                 FileSystem fs = new FileSystem(s);
             }
