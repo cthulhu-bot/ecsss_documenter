@@ -80,33 +80,54 @@ namespace ECSSS_Documenter
         public List<FileSystem> getDirStructure(string rootPath)
         {
             List<string> rootDirs = Directory.GetDirectories(rootPath).ToList();
-            List<string> dirsTemp = new List<string>();
+            foreach (string s in rootDirs)
+            {
+                Console.WriteLine(s + "\nLast Index: " + s.LastIndexOf('\\') + "\nLength: " + s.Length);
+                Console.WriteLine(s.Substring(s.LastIndexOf('\\') - 1, s.Length - 1));
+            }
+            //rootDirs.RemoveAll(r => !targetDirectories.Contains(r.Substring(r.LastIndexOf('\\') - 1, r.Length)));
+            // Need a list to compare the original list to in order to remove directories you don't wish to scan
+            //List<string> dirsTemp = new List<string>();
+
+            // Need to manually add list elements from one list to the comparing list
+            // Attempting to set one list = to another only makes both pointers point to the same list (i think)
+            //foreach (string s in rootDirs)
+            //{
+            //    dirsTemp.Add(s);
+            //}
+
+            //foreach (string s in rootDirs)
+            //{
+            //    string[] pathParts = s.Split('\\');
+            //    rootDirs.RemoveAll(r => !targetDirectories.Contains(pathParts[pathParts.Length - 1]));
+            //    //if (!targetDirectories.Contains(pathParts[pathParts.Length - 1]))
+            //    //{
+            //    //    rootDirs.Remove(s);
+            //    //}
+            //}
 
             foreach (string s in rootDirs)
             {
-                dirsTemp.Add(s);
-            }
-
-            foreach (string s in dirsTemp)
-            {
-                string[] pathParts = s.Split('\\');
-                if (!targetDirectories.Contains(pathParts[pathParts.Length - 1]))
-                {
-                    rootDirs.Remove(s);
-                }
-            }
-
-            foreach (string s in rootDirs)
-            {
-                string foo = s;
-                for (int i = 0; i < calculateDirectoryDepth(); i++)
-                {
-                    foo = " " + foo;
-                }
-                Console.WriteLine(foo);
+                List<string> files = getCurrentPathFiles(s);
+                string foo = s.PadLeft(calculateDirectoryDepth() + s.Length, ' ');
+                //Console.WriteLine(foo);
                 FileSystem fs = new FileSystem(s);
             }
             return directories;
+        }
+
+        public List<string> getRootPathFiles()
+        {
+            string[] root_files = Directory.GetFiles(root);
+            List<string> files = root_files.ToList();
+            return files;
+        }
+
+        public List<string> getCurrentPathFiles(string path)
+        {
+            string[] root_files = Directory.GetFiles(path);
+            List<string> files = root_files.ToList();
+            return files;
         }
 
 
