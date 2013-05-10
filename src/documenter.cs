@@ -14,30 +14,12 @@ namespace ECSSS_Documenter
 
         static void Main(string[] args)
         {
-            string[] ecsss_root_files = Directory.GetFiles(ecsss_root_source);
-            string[] ecsss_root_dirs = Directory.GetDirectories(ecsss_root_source);
-            string[] current_files;
-
             if (!Directory.Exists(docs_root_destination))
             {
                 Directory.CreateDirectory(docs_root_destination);
             }
 
-            foreach (string s in ecsss_root_files)
-            {
-                current_files = s.Split('\\');
-                //Console.WriteLine(current_files[current_files.Length - 1]);
-            }
-            foreach (string s in ecsss_root_dirs)
-            {
-//                Console.WriteLine(s);
-            }
-
-            foreach (string s in ecsss_root_files)
-            {
-                //Console.WriteLine(docs_root_destination + s);
-            }
-
+            // Initialize filesystem below the ecsss_root_source directory to retrieve all files to be documented
             FileSystem fs = new FileSystem(ecsss_root_source);
             Console.WriteLine("Press any key to continue...");
             Console.ReadLine();
