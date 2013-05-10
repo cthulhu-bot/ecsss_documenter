@@ -4,7 +4,6 @@ using System.Collections;
 using System.Linq;
 using System.Text;
 using System.IO;
-using NUnit.Framework;
 
 namespace ECSSS_Documenter
 {
@@ -39,7 +38,7 @@ namespace ECSSS_Documenter
                 //Console.WriteLine(docs_root_destination + s);
             }
 
-            FileSystem fs = new FileSystem(ecsss_root_source, 0);
+            FileSystem fs = new FileSystem(ecsss_root_source);
             Console.WriteLine("Press any key to continue...");
             Console.ReadLine();
         }
@@ -49,7 +48,9 @@ namespace ECSSS_Documenter
     /// Class:  FileSystem
     /// Description:  Crawls the root directory and creates a list containing sublists
     /// which contain sublists (etc) representing the tree structure of the filesystem 
-    /// starting at the root directory passed to the constructor.
+    /// starting at the root directory passed to the constructor.  Still debating on
+    /// whether to list directories to exclude or (if there are too many to exclude)
+    /// list directories to include instead.  Not sure which is less.
     /// </summary>
     class FileSystem
     {
@@ -68,16 +69,20 @@ namespace ECSSS_Documenter
                                                        ,"src"
                                                        ,"pages"
                                                    };
+        public string root {get; private set; }
 
-        public FileSystem(string rootPath, int depth)
+        public FileSystem(string rootPath)
         {
-            getDirStructure(rootPath, depth);
+            root = rootPath;
+            getDirStructure(rootPath);
         }
 
-        public static List<FileSystem> getDirStructure(string rootPath, int depth)
+        public List<FileSystem> getDirStructure(string rootPath)
         {
             List<string> rootDirs = Directory.GetDirectories(rootPath).ToList();
             List<string> dirsTemp = new List<string>();
+            //int rootDirDepth = calculateDirectoryDepth();
+
             foreach (string s in rootDirs)
             {
                 dirsTemp.Add(s);
@@ -95,14 +100,20 @@ namespace ECSSS_Documenter
             foreach (string s in rootDirs)
             {
                 string foo = s;
-                for (int i = 0; i < depth; i++)
+                for (int i = 0; i < calculateDirectoryDepth(); i++)
                 {
                     foo = " " + foo;
                 }
                 Console.WriteLine(foo);
-                FileSystem fs = new FileSystem(s, ++depth);
+                FileSystem fs = new FileSystem(s);
             }
             return directories;
+        }
+
+
+        public int calculateDirectoryDepth()
+        {
+            return root.Count(r => r == '\\') - 1;
         }
     }
 }
