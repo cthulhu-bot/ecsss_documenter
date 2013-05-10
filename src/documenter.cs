@@ -81,7 +81,6 @@ namespace ECSSS_Documenter
         {
             List<string> rootDirs = Directory.GetDirectories(rootPath).ToList();
             List<string> dirsTemp = new List<string>();
-            //int rootDirDepth = calculateDirectoryDepth();
 
             foreach (string s in rootDirs)
             {
