@@ -42,6 +42,11 @@ namespace ECSSS_Documenter
                                                        ,"src"
                                                        ,"pages"
                                                    };
+        public static string[] targetExtensions = {
+                                                      ".js"
+                                                      ,".cs"
+                                                      ,".query"
+                                                  };
         public List<string> rootFiles { get; set; }
         public string root {get; private set; }
 
