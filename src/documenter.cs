@@ -69,10 +69,15 @@ namespace ECSSS_Documenter
             foreach (string s in rootDirs)
             {
                 rootFiles = getCurrentPathFiles(s);
+                rootFiles.RemoveAll(r => !targetExtensions.Any(r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains)
+                    || r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains(".css"));
+
                 Console.WriteLine(s.PadLeft(calculateDirectoryDepth() + s.Length, ' '));
                 foreach (string f in rootFiles)
                 {
                     Console.WriteLine(f.PadLeft(calculateDirectoryDepth() + f.Length, ' '));
+
+                    //File.Copy(f, "dest");
                 }
 
                 // Recursively continue iterating through the filesystem by creating new instances of the FileSystem class
