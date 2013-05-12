@@ -24,6 +24,12 @@ namespace ECSSS_Documenter
             Console.WriteLine("Press any key to continue...");
             Console.ReadLine();
         }
+
+        public void runDocco(string fileName)
+        {
+            string cmd = "docco" + fileName;
+            System.Diagnostics.Process.Start("CMD.exe", cmd);
+        }
     }
 
     /// <summary>
@@ -63,12 +69,15 @@ namespace ECSSS_Documenter
         public List<FileSystem> getDirStructure(string rootPath)
         {
             List<string> rootDirs = Directory.GetDirectories(rootPath).ToList();
+            
             // Remove all directories except those contained in the targetDirectories array
             rootDirs.RemoveAll(r => !targetDirectories.Any(r.Substring(r.LastIndexOf('\\') + 1, r.Length - r.LastIndexOf('\\') - 1).Contains));
 
             foreach (string s in rootDirs)
             {
                 rootFiles = getCurrentPathFiles(s);
+                
+                //Remove all files not containing the targeted extensions
                 rootFiles.RemoveAll(r => !targetExtensions.Any(r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains)
                     || r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains(".css"));
 
@@ -80,7 +89,8 @@ namespace ECSSS_Documenter
                     //File.Copy(f, "dest");
                 }
 
-                // Recursively continue iterating through the filesystem by creating new instances of the FileSystem class
+                // Recursively continue iterating through the filesystem by creating new instances of the FileSystem class for each
+                // subdirectory beneath the root directory
                 FileSystem fs = new FileSystem(s);
             }
             return directories;
