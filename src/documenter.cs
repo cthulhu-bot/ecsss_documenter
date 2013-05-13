@@ -105,7 +105,8 @@ namespace ECSSS_Documenter
         {
             List<string> files = Directory.GetFiles(root).ToList();
             //Remove all files not containing the targeted extensions
-            files.RemoveAll(r => !targetExtensions.Any(r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains)
+            files.RemoveAll(r => !r.Contains('.')
+                || !targetExtensions.Any(r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains)
                 || r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains(".css"));
             return files;
         }
@@ -120,7 +121,8 @@ namespace ECSSS_Documenter
         {
             List<string> files = Directory.GetFiles(path).ToList();
             //Remove all files not containing the targeted extensions
-            files.RemoveAll(r => !targetExtensions.Any(r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains)
+            files.RemoveAll(r => !r.Contains('.')
+                || !targetExtensions.Any(r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains)
                 || r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains(".css"));
             return files;
         }
