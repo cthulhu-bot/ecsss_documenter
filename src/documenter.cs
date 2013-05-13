@@ -21,7 +21,7 @@ namespace ECSSS_Documenter
 
             // Initialize filesystem below the ecsss_root_source directory to retrieve all files to be documented
             FileSystem fs = new FileSystem(ecsss_root_source);
-            foreach (string s in fs.getDirStructure())
+            foreach (string s in fs.files)
             {
                 Console.WriteLine(s);
             }
@@ -57,7 +57,7 @@ namespace ECSSS_Documenter
                                                       ,".cs"
                                                       ,".query"
                                                   };
-        public List<string> rootFiles { get; set; }
+        public List<string> files { get; set; }
         public string root {get; private set; }
 
         /// <summary>
@@ -67,32 +67,32 @@ namespace ECSSS_Documenter
         public FileSystem(string rootPath)
         {
             root = rootPath;
+            this.files = getDirStructure();
         }
 
         public List<string> getDirStructure()
         {
-            rootFiles = new List<string>();
+            List<string> rootFiles = new List<string>();
             List<string> rootDirs = Directory.GetDirectories(root).ToList();
             
             // Remove all directories except those contained in the targetDirectories array
             rootDirs.RemoveAll(r => !targetDirectories.Any(r.Substring(r.LastIndexOf('\\') + 1, r.Length - r.LastIndexOf('\\') - 1).Contains));
 
+            // Get all files in subdirectories
             foreach (string s in rootDirs)
             {
-                //Console.WriteLine(s.PadLeft(calculateDirectoryDepth() + s.Length, ' '));
-                //foreach (string f in rootFiles)
-                //{
-                //    Console.WriteLine(f.PadLeft(calculateDirectoryDepth() + f.Length, ' '));
-                //}
-
                 // Recursively continue iterating through the filesystem by creating new instances of the FileSystem class for each
                 // subdirectory beneath the root directory
                 FileSystem fs = new FileSystem(s);
-                foreach (string f in fs.getRootPathFiles())
-                {
-                    rootFiles.Add(f);
-                }
+                rootFiles = rootFiles.Union(fs.files).ToList();
             }
+
+            // Add all files in root directory
+            foreach (string s in getRootPathFiles())
+            {
+                rootFiles.Add(s);
+            }
+
             return rootFiles;
         }
 
