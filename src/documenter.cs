@@ -21,6 +21,10 @@ namespace ECSSS_Documenter
 
             // Initialize filesystem below the ecsss_root_source directory to retrieve all files to be documented
             FileSystem fs = new FileSystem(ecsss_root_source);
+            foreach (string s in fs.getDirStructure())
+            {
+                Console.WriteLine(s);
+            }
             Console.WriteLine("Press any key to continue...");
             Console.ReadLine();
         }
@@ -63,37 +67,33 @@ namespace ECSSS_Documenter
         public FileSystem(string rootPath)
         {
             root = rootPath;
-            getDirStructure(root);
         }
 
-        public List<FileSystem> getDirStructure(string rootPath)
+        public List<string> getDirStructure()
         {
-            List<string> rootDirs = Directory.GetDirectories(rootPath).ToList();
+            rootFiles = new List<string>();
+            List<string> rootDirs = Directory.GetDirectories(root).ToList();
             
             // Remove all directories except those contained in the targetDirectories array
             rootDirs.RemoveAll(r => !targetDirectories.Any(r.Substring(r.LastIndexOf('\\') + 1, r.Length - r.LastIndexOf('\\') - 1).Contains));
 
             foreach (string s in rootDirs)
             {
-                rootFiles = getCurrentPathFiles(s);
-                
-                //Remove all files not containing the targeted extensions
-                rootFiles.RemoveAll(r => !targetExtensions.Any(r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains)
-                    || r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains(".css"));
-
-                Console.WriteLine(s.PadLeft(calculateDirectoryDepth() + s.Length, ' '));
-                foreach (string f in rootFiles)
-                {
-                    Console.WriteLine(f.PadLeft(calculateDirectoryDepth() + f.Length, ' '));
-
-                    //File.Copy(f, "dest");
-                }
+                //Console.WriteLine(s.PadLeft(calculateDirectoryDepth() + s.Length, ' '));
+                //foreach (string f in rootFiles)
+                //{
+                //    Console.WriteLine(f.PadLeft(calculateDirectoryDepth() + f.Length, ' '));
+                //}
 
                 // Recursively continue iterating through the filesystem by creating new instances of the FileSystem class for each
                 // subdirectory beneath the root directory
                 FileSystem fs = new FileSystem(s);
+                foreach (string f in fs.getRootPathFiles())
+                {
+                    rootFiles.Add(f);
+                }
             }
-            return directories;
+            return rootFiles;
         }
 
         /// <summary>
@@ -103,8 +103,10 @@ namespace ECSSS_Documenter
         /// <returns></returns>
         public List<string> getRootPathFiles()
         {
-            string[] root_files = Directory.GetFiles(root);
-            List<string> files = root_files.ToList();
+            List<string> files = Directory.GetFiles(root).ToList();
+            //Remove all files not containing the targeted extensions
+            files.RemoveAll(r => !targetExtensions.Any(r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains)
+                || r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains(".css"));
             return files;
         }
 
@@ -116,8 +118,10 @@ namespace ECSSS_Documenter
         /// <returns></returns>
         public List<string> getCurrentPathFiles(string path)
         {
-            string[] root_files = Directory.GetFiles(path);
-            List<string> files = root_files.ToList();
+            List<string> files = Directory.GetFiles(path).ToList();
+            //Remove all files not containing the targeted extensions
+            files.RemoveAll(r => !targetExtensions.Any(r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains)
+                || r.Substring(r.LastIndexOf('.'), r.Length - r.LastIndexOf('.')).Contains(".css"));
             return files;
         }
 
