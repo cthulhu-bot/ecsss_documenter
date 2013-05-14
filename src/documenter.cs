@@ -4,6 +4,8 @@ using System.Collections;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Web;
+using System.Runtime.Serialization;
 
 namespace ECSSS_Documenter
 {
@@ -11,6 +13,7 @@ namespace ECSSS_Documenter
     {
         public const string ecsss_root_source = @"C:\ECSSS\csss";
         public const string docs_root_destination = @"C:\ECSSS\csss\docs";
+        
         public static string[] targetDirectories = { 
                                                        "web"
                                                        ,"src"
@@ -43,6 +46,16 @@ namespace ECSSS_Documenter
         {
             string cmd = "docco" + fileName;
             System.Diagnostics.Process.Start("CMD.exe", cmd);
+        }
+
+        public List<string> getTargetDirectories()
+        {
+            return new List<string>();
+        }
+
+        public List<string> getTargetExtensions()
+        {
+            return new List<string>();
         }
     }
 
