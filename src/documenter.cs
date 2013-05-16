@@ -9,6 +9,10 @@ using System.Runtime.Serialization;
 
 namespace ECSSS_Documenter
 {
+    /// <summary>
+    /// Name:  Documenter
+    /// Description:  
+    /// </summary>
     class Documenter
     {
         public const string ecsss_root_source = @"C:\ECSSS\csss";
