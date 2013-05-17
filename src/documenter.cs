@@ -16,7 +16,8 @@ namespace ECSSS_Documenter
     class Documenter
     {
         public const string ecsss_root_source = @"C:\ECSSS\csss";
-        public const string docs_root_destination = @"C:\ECSSS\csss\docs";
+        public const string docs_root_destination = @"C:\ECSSS\csss\docs\";
+        public const string docs_root_destination_temp = @"C:\ECSSS\csss\docs\docs\";
         
         public static string[] targetDirectories = { 
                                                        "web"
@@ -34,31 +35,34 @@ namespace ECSSS_Documenter
             if (!Directory.Exists(docs_root_destination))
             {
                 Directory.CreateDirectory(docs_root_destination);
+                Directory.CreateDirectory(docs_root_destination_temp);
             }
 
             // Initialize filesystem below the ecsss_root_source directory to retrieve all files to be documented
             FileSystem fs = new FileSystem(ecsss_root_source, targetExtensions, targetDirectories);
-            foreach (string s in fs.files)
-            {
-                string str = s.Replace('\\', '.');
-                str = str.Remove(0, str.IndexOf("csss") + 5);
-                Console.WriteLine(str);
-            }
+            copyFilesToDocDirectory(fs);
+
             Console.WriteLine("Press any key to continue...");
             Console.ReadLine();
         }
 
-        public void runDocco(string fileName)
+        public static void runDocco(string fileName)
         {
             string cmd = "docco" + fileName;
             System.Diagnostics.Process.Start("CMD.exe", cmd);
         }
 
-        public List<string> getTargetDirectories()
+        public static void copyFilesToDocDirectory(FileSystem fs)
         {
-            return new List<string>();
+            foreach (string s in fs.files)
+            {
+                string str = s.Replace('\\', '.');
+                str = str.Remove(0, str.IndexOf("csss") + 5);
+                File.Copy(s, docs_root_destination + str);
+                Console.WriteLine("{0} copied to {1}", s, docs_root_destination + str);
+            }
         }
-
+        
         public List<string> getTargetExtensions()
         {
             return new List<string>();
