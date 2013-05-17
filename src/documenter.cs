@@ -40,7 +40,9 @@ namespace ECSSS_Documenter
             FileSystem fs = new FileSystem(ecsss_root_source, targetExtensions, targetDirectories);
             foreach (string s in fs.files)
             {
-                Console.WriteLine(s);
+                string str = s.Replace('\\', '.');
+                str = str.Remove(0, str.IndexOf("csss") + 5);
+                Console.WriteLine(str);
             }
             Console.WriteLine("Press any key to continue...");
             Console.ReadLine();
