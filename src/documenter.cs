@@ -23,16 +23,18 @@ namespace ECSSS_Documenter
                                                        "web"
                                                        ,"src"
                                                        ,"pages"
+                                                       ,"app"
+                                                       ,"script"
                                                    };
         public static string[] targetExtensions = {
                                                       ".js"
-                                                      ,".cs"
-                                                      ,".query"
+                                                      //,".cs"
+                                                      //,".query"
                                                   };
 
         static void Main(string[] args)
         {
-            if (!Directory.Exists(docs_root_destination))
+            if (!Directory.Exists(docs_root_destination) || !Directory.Exists(docs_root_destination_temp))
             {
                 Directory.CreateDirectory(docs_root_destination);
                 Directory.CreateDirectory(docs_root_destination_temp);
@@ -58,8 +60,11 @@ namespace ECSSS_Documenter
             {
                 string str = s.Replace('\\', '.');
                 str = str.Remove(0, str.IndexOf("csss") + 5);
+                if (File.Exists(docs_root_destination + str))
+                    File.Delete(docs_root_destination + str);
                 File.Copy(s, docs_root_destination + str);
                 Console.WriteLine("{0} copied to {1}", s, docs_root_destination + str);
+                runDocco(str);
             }
         }
         
