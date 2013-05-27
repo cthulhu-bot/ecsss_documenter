@@ -19,6 +19,7 @@ namespace ECSSS_Documenter
         public const string ecsss_root_source = @"C:\ECSSS\csss";
         public const string docs_root_destination = @"C:\ECSSS\csss\docs\";
         public const string docs_root_destination_temp = @"C:\ECSSS\csss\docs\docs\";
+        public const string batch_file = @"C:\ECSSS\csss\docs\docco.bat";
         
         public static string[] targetDirectories = { 
                                                        "web"
@@ -49,9 +50,14 @@ namespace ECSSS_Documenter
             Console.ReadLine();
         }
 
+        /// <summary>
+        /// Name:  runDocco
+        /// Description:  For every file copied try running docco
+        /// </summary>
+        /// <param name="fileName"></param>
         public static void runDocco(string fileName)
         {
-            createBatchFile();
+            createBatchFile(fileName);
             Process p = new Process();
             p.StartInfo.FileName = "docco.bat";
             p.StartInfo.Arguments = "";
@@ -68,6 +74,11 @@ namespace ECSSS_Documenter
             }
         }
 
+        /// <summary>
+        /// Name:  copyFilesToDocDirectory
+        /// Description: 
+        /// </summary>
+        /// <param name="fs"></param>
         public static void copyFilesToDocDirectory(FileSystem fs)
         {
             foreach (string s in fs.files)
@@ -82,12 +93,25 @@ namespace ECSSS_Documenter
             }
         }
 
-        public static void createBatchFile()
+        /// <summary>
+        /// Name: createBatchFile
+        /// Description: Create batch file to execute docco commands
+        /// </summary>
+        /// <param name="file"></param>
+        public static void createBatchFile(string file)
         {
-            StringBuilder sb = new StringBuilder("echo hi");
-            using (StreamWriter outfile = new StreamWriter(".\\docco.bat"))
+            StringBuilder sb = new StringBuilder("docco " + file);
+            try
             {
-                outfile.Write(sb.ToString());
+                using (StreamWriter outfile = new StreamWriter(batch_file))
+                {
+                    outfile.Write(sb.ToString());
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Batch file creation error:  " + e.Message);
+                Console.WriteLine("Current Directory: " + Directory.GetCurrentDirectory());
             }
         }
     }
