@@ -6,6 +6,7 @@ using System.Text;
 using System.IO;
 using System.Web;
 using System.Runtime.Serialization;
+using System.Diagnostics;
 
 namespace ECSSS_Documenter
 {
@@ -28,8 +29,8 @@ namespace ECSSS_Documenter
                                                    };
         public static string[] targetExtensions = {
                                                       ".js"
-                                                      //,".cs"
-                                                      //,".query"
+                                                      ,".cs"
+                                                      ,".query"
                                                   };
 
         static void Main(string[] args)
@@ -51,7 +52,20 @@ namespace ECSSS_Documenter
         public static void runDocco(string fileName)
         {
             string cmd = "docco" + fileName;
-            System.Diagnostics.Process.Start("CMD.exe", cmd);
+            Process p = new Process();
+            p.StartInfo.FileName = "docco.bat";
+            p.StartInfo.Arguments = "";
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.RedirectStandardOutput = true;
+            try
+            {
+                p.Start();
+                string sdtOutput = p.StandardOutput.ReadToEnd();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Console Error: " + e);
+            }
         }
 
         public static void copyFilesToDocDirectory(FileSystem fs)
