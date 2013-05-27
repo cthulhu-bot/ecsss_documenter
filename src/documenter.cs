@@ -60,7 +60,7 @@ namespace ECSSS_Documenter
             try
             {
                 p.Start();
-                string sdtOutput = p.StandardOutput.ReadToEnd();
+                Console.WriteLine(p.StandardOutput.ReadToEnd());
             }
             catch (Exception e)
             {
