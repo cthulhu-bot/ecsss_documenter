@@ -51,7 +51,7 @@ namespace ECSSS_Documenter
 
         public static void runDocco(string fileName)
         {
-            string cmd = "docco" + fileName;
+            createBatchFile();
             Process p = new Process();
             p.StartInfo.FileName = "docco.bat";
             p.StartInfo.Arguments = "";
@@ -81,10 +81,14 @@ namespace ECSSS_Documenter
                 runDocco(str);
             }
         }
-        
-        public List<string> getTargetExtensions()
+
+        public static void createBatchFile()
         {
-            return new List<string>();
+            StringBuilder sb = new StringBuilder("echo hi");
+            using (StreamWriter outfile = new StreamWriter(".\\docco.bat"))
+            {
+                outfile.Write(sb.ToString());
+            }
         }
     }
 
