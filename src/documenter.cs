@@ -33,7 +33,6 @@ namespace ECSSS_Documenter
                                                       //,".cs"
                                                       //,".query"
                                                   };
-        public static List<string> fileList = new List<string>();
 
         static void Main(string[] args)
         {
@@ -66,9 +65,8 @@ namespace ECSSS_Documenter
                     File.Delete(docs_root_destination + str);
                 File.Copy(s, docs_root_destination + str);
                 Console.WriteLine("{0} copied to {1}", s, docs_root_destination + str);
-                fileList.Add(str);
+                runDocco(str);
             }
-            runDocco(fileList);
         }
 
         /// <summary>
@@ -76,23 +74,24 @@ namespace ECSSS_Documenter
         /// Description:  For every file copied try running docco
         /// </summary>
         /// <param name="fileName"></param>
-        public static void runDocco(List<string> fileList)
+        public static void runDocco(string fileName)
         {
-            createBatchFile(fileList);
-            ProcessStartInfo p = new ProcessStartInfo();
-            p.UseShellExecute = false;
-            p.RedirectStandardOutput = true;
-            p.RedirectStandardError = true;
-            p.Verb = "runas";
-            p.WorkingDirectory = @"C:\ECSSS\csss\docs\";
-            p.FileName = @"test.bat";
-            string targetFile = Path.Combine(p.WorkingDirectory, p.FileName);
+            createBatchFile(fileName);
+            Process p = new Process();
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.RedirectStandardOutput = true;
+            p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.Verb = "runas";
+            p.StartInfo.WorkingDirectory = @"C:\ECSSS\csss\docs\";
+            p.StartInfo.FileName = @"test.bat";
+            string targetFile = Path.Combine(p.StartInfo.WorkingDirectory, p.StartInfo.FileName);
             var fileInfo = new FileInfo(targetFile);
             if (fileInfo.Exists)
             {
                 try
                 {
-                    Process.Start(p);
+                    p.Start();
+                    p.WaitForExit();
                 }
                 catch (Exception e)
                 {
@@ -110,13 +109,9 @@ namespace ECSSS_Documenter
         /// Description: Create batch file to execute docco commands
         /// </summary>
         /// <param name="file"></param>
-        public static void createBatchFile(List<string> fileList)
+        public static void createBatchFile(string file)
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (string s in fileList)
-            {
-                sb.Append("docco " + s + "\n");
-            }
+            StringBuilder sb = new StringBuilder("docco " + file);
             try
             {
                 using (StreamWriter outfile = new StreamWriter(batch_file))
