@@ -19,7 +19,7 @@ namespace ECSSS_Documenter
         public const string ecsss_root_source = @"C:\ECSSS\csss";
         public const string docs_root_destination = @"C:\ECSSS\csss\docs\";
         public const string docs_root_destination_temp = @"C:\ECSSS\csss\docs\docs\";
-        public const string batch_file = @"C:\ECSSS\csss\docs\docco.bat";
+        public const string batch_file = @"C:\ECSSS\csss\docs\test.bat";
         
         public static string[] targetDirectories = { 
                                                        "web"
@@ -30,8 +30,8 @@ namespace ECSSS_Documenter
                                                    };
         public static string[] targetExtensions = {
                                                       ".js"
-                                                      ,".cs"
-                                                      ,".query"
+                                                      //,".cs"
+                                                      //,".query"
                                                   };
 
         static void Main(string[] args)
@@ -58,19 +58,29 @@ namespace ECSSS_Documenter
         public static void runDocco(string fileName)
         {
             createBatchFile(fileName);
-            Process p = new Process();
-            p.StartInfo.FileName = "docco.bat";
-            p.StartInfo.Arguments = "";
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardOutput = true;
-            try
+            ProcessStartInfo p = new ProcessStartInfo();
+            p.UseShellExecute = false;
+            p.RedirectStandardOutput = true;
+            p.RedirectStandardError = true;
+            p.Verb = "runas";
+            p.WorkingDirectory = @"C:\ECSSS\csss\docs\";
+            p.FileName = @"test.bat";
+            string targetFile = Path.Combine(p.WorkingDirectory, p.FileName);
+            var fileInfo = new FileInfo(targetFile);
+            if (fileInfo.Exists)
             {
-                p.Start();
-                Console.WriteLine(p.StandardOutput.ReadToEnd());
+                try
+                {
+                    Process.Start(p);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Console execution error: " + e);
+                }
             }
-            catch (Exception e)
+            else
             {
-                Console.WriteLine("Console Error: " + e);
+                throw new FileNotFoundException("The requested file was not found: " + fileInfo.FullName);
             }
         }
 
@@ -120,9 +130,7 @@ namespace ECSSS_Documenter
     /// Class:  FileSystem
     /// Description:  Crawls the root directory and creates a list containing sublists
     /// which contain sublists (etc) representing the tree structure of the filesystem 
-    /// starting at the root directory passed to the constructor.  Still debating on
-    /// whether to list directories to exclude or (if there are too many to exclude)
-    /// list directories to include instead.  Not sure which is less.
+    /// starting at the root directory passed to the constructor.
     /// </summary>
     class FileSystem
     {
