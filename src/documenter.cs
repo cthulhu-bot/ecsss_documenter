@@ -33,6 +33,7 @@ namespace ECSSS_Documenter
                                                       //,".cs"
                                                       //,".query"
                                                   };
+        public static List<string> fileList = new List<string>();
 
         static void Main(string[] args)
         {
@@ -51,13 +52,33 @@ namespace ECSSS_Documenter
         }
 
         /// <summary>
+        /// Name:  copyFilesToDocDirectory
+        /// Description: 
+        /// </summary>
+        /// <param name="fs"></param>
+        public static void copyFilesToDocDirectory(FileSystem fs)
+        {
+            foreach (string s in fs.files)
+            {
+                string str = s.Replace('\\', '.');
+                str = str.Remove(0, str.IndexOf("csss") + 5);
+                if (File.Exists(docs_root_destination + str))
+                    File.Delete(docs_root_destination + str);
+                File.Copy(s, docs_root_destination + str);
+                Console.WriteLine("{0} copied to {1}", s, docs_root_destination + str);
+                fileList.Add(str);
+            }
+            runDocco(fileList);
+        }
+
+        /// <summary>
         /// Name:  runDocco
         /// Description:  For every file copied try running docco
         /// </summary>
         /// <param name="fileName"></param>
-        public static void runDocco(string fileName)
+        public static void runDocco(List<string> fileList)
         {
-            createBatchFile(fileName);
+            createBatchFile(fileList);
             ProcessStartInfo p = new ProcessStartInfo();
             p.UseShellExecute = false;
             p.RedirectStandardOutput = true;
@@ -85,32 +106,17 @@ namespace ECSSS_Documenter
         }
 
         /// <summary>
-        /// Name:  copyFilesToDocDirectory
-        /// Description: 
-        /// </summary>
-        /// <param name="fs"></param>
-        public static void copyFilesToDocDirectory(FileSystem fs)
-        {
-            foreach (string s in fs.files)
-            {
-                string str = s.Replace('\\', '.');
-                str = str.Remove(0, str.IndexOf("csss") + 5);
-                if (File.Exists(docs_root_destination + str))
-                    File.Delete(docs_root_destination + str);
-                File.Copy(s, docs_root_destination + str);
-                Console.WriteLine("{0} copied to {1}", s, docs_root_destination + str);
-                runDocco(str);
-            }
-        }
-
-        /// <summary>
         /// Name: createBatchFile
         /// Description: Create batch file to execute docco commands
         /// </summary>
         /// <param name="file"></param>
-        public static void createBatchFile(string file)
+        public static void createBatchFile(List<string> fileList)
         {
-            StringBuilder sb = new StringBuilder("docco " + file);
+            StringBuilder sb = new StringBuilder();
+            foreach (string s in fileList)
+            {
+                sb.Append("docco " + s + "\n");
+            }
             try
             {
                 using (StreamWriter outfile = new StreamWriter(batch_file))
