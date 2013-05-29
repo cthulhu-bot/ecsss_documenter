@@ -7,6 +7,7 @@ using System.IO;
 using System.Web;
 using System.Runtime.Serialization;
 using System.Diagnostics;
+using System.Security.Principal;
 
 namespace ECSSS_Documenter
 {
@@ -27,6 +28,7 @@ namespace ECSSS_Documenter
                                                        ,"pages"
                                                        ,"app"
                                                        ,"script"
+                                                       ,"student"
                                                    };
         public static string[] targetExtensions = {
                                                       ".js"
@@ -44,7 +46,8 @@ namespace ECSSS_Documenter
 
             // Initialize filesystem below the ecsss_root_source directory to retrieve all files to be documented
             FileSystem fs = new FileSystem(ecsss_root_source, targetExtensions, targetDirectories);
-            copyFilesToDocDirectory(fs);
+            Documenter doc = new Documenter();
+            doc.copyFilesToDocDirectory(fs);
 
             Console.WriteLine("Press any key to continue...");
             Console.ReadLine();
@@ -55,7 +58,7 @@ namespace ECSSS_Documenter
         /// Description: 
         /// </summary>
         /// <param name="fs"></param>
-        public static void copyFilesToDocDirectory(FileSystem fs)
+        public void copyFilesToDocDirectory(FileSystem fs)
         {
             foreach (string s in fs.files)
             {
@@ -65,7 +68,7 @@ namespace ECSSS_Documenter
                     File.Delete(docs_root_destination + str);
                 File.Copy(s, docs_root_destination + str);
                 Console.WriteLine("{0} copied to {1}", s, docs_root_destination + str);
-                runDocco(str);
+                this.runDocco(str);
             }
         }
 
@@ -74,9 +77,9 @@ namespace ECSSS_Documenter
         /// Description:  For every file copied try running docco
         /// </summary>
         /// <param name="fileName"></param>
-        public static void runDocco(string fileName)
+        public void runDocco(string fileName)
         {
-            createBatchFile(fileName);
+            this.createBatchFile(fileName);
             Process p = new Process();
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.RedirectStandardOutput = true;
@@ -88,14 +91,24 @@ namespace ECSSS_Documenter
             var fileInfo = new FileInfo(targetFile);
             if (fileInfo.Exists)
             {
-                try
+                if (this.isAdministrator)
                 {
-                    p.Start();
-                    p.WaitForExit();
+                    try
+                    {
+                        p.Start();
+                        p.WaitForExit();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Console execution error: " + e);
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine("Console execution error: " + e);
+                    Console.WriteLine("You must be running in administrator for this to work\nPlease rerun with appropriate credentials");
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadLine();
+                    Environment.Exit(0);
                 }
             }
             else
@@ -109,7 +122,7 @@ namespace ECSSS_Documenter
         /// Description: Create batch file to execute docco commands
         /// </summary>
         /// <param name="file"></param>
-        public static void createBatchFile(string file)
+        public void createBatchFile(string file)
         {
             StringBuilder sb = new StringBuilder("docco " + file);
             try
@@ -123,6 +136,16 @@ namespace ECSSS_Documenter
             {
                 Console.WriteLine("Batch file creation error:  " + e.Message);
                 Console.WriteLine("Current Directory: " + Directory.GetCurrentDirectory());
+            }
+        }
+
+        private bool isAdministrator
+        {
+            get
+            {
+                WindowsIdentity wi = WindowsIdentity.GetCurrent();
+                WindowsPrincipal wp = new WindowsPrincipal(wi);
+                return wp.IsInRole(WindowsBuiltInRole.Administrator);
             }
         }
     }
