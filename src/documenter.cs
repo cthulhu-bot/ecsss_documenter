@@ -22,7 +22,7 @@ namespace ECSSS_Documenter
         public const string docs_root_destination = @"C:\ECSSS\csss\docs\";
         public const string docs_root_destination_temp = @"C:\ECSSS\csss\docs\docs\";
         public const string batch_file = @"C:\ECSSS\csss\docs\test.bat";
-        
+
         public static string[] targetDirectories = { 
                                                        "web"
                                                        ,"src"
@@ -39,19 +39,29 @@ namespace ECSSS_Documenter
 
         static void Main(string[] args)
         {
-            if (!Directory.Exists(docs_root_destination) || !Directory.Exists(docs_root_destination_temp))
-            {
-                Directory.CreateDirectory(docs_root_destination);
-                Directory.CreateDirectory(docs_root_destination_temp);
-            }
-
-            // Initialize filesystem below the ecsss_root_source directory to retrieve all files to be documented
-            FileSystem fs = new FileSystem(ecsss_root_source, targetExtensions, targetDirectories);
             Documenter doc = new Documenter();
-            doc.copyFilesToDocDirectory(fs);
+            if (doc.isAdministrator)
+            {
+                if (!Directory.Exists(docs_root_destination) || !Directory.Exists(docs_root_destination_temp))
+                {
+                    Directory.CreateDirectory(docs_root_destination);
+                    Directory.CreateDirectory(docs_root_destination_temp);
+                }
 
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadLine();
+                // Initialize filesystem below the ecsss_root_source directory to retrieve all files to be documented
+                FileSystem fs = new FileSystem(ecsss_root_source, targetExtensions, targetDirectories);
+                doc.copyFilesToDocDirectory(fs);
+
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadLine();
+            }
+            else
+            {
+                Console.WriteLine("You must be running in administrator for this to work\nPlease rerun with appropriate credentials");
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadLine();
+                Environment.Exit(0);
+            }
         }
 
         /// <summary>
@@ -67,9 +77,27 @@ namespace ECSSS_Documenter
                 str = str.Remove(0, str.IndexOf("csss") + 5);
                 if (File.Exists(docs_root_destination + str))
                     File.Delete(docs_root_destination + str);
-                File.Copy(currentFile, docs_root_destination + str);
-                Console.WriteLine("{0} copied to {1}", currentFile, docs_root_destination + str);
-                this.runDocco(str);
+                try
+                {
+                    File.Copy(currentFile, docs_root_destination + str);
+                    //Console.WriteLine("{0} copied to {1}", currentFile, docs_root_destination + str);
+                    Console.Write(" [");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("OK");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write("] ");
+                    Console.WriteLine(currentFile.Substring(currentFile.LastIndexOf('\\') + 1, currentFile.Length - currentFile.LastIndexOf('\\') - 1) + " -> " + str);
+                    this.runDocco(str);
+                }
+                catch (Exception e)
+                {
+                    Console.Write(" [");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("ERROR");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write("] ");
+                    Console.WriteLine(e.Message);
+                }
             }
         }
 
@@ -92,24 +120,14 @@ namespace ECSSS_Documenter
             var fileInfo = new FileInfo(targetFile);
             if (fileInfo.Exists)
             {
-                if (this.isAdministrator)
+                try
                 {
-                    try
-                    {
-                        p.Start();
-                        p.WaitForExit();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Console execution error: " + e);
-                    }
+                    p.Start();
+                    p.WaitForExit();
                 }
-                else
+                catch (Exception e)
                 {
-                    Console.WriteLine("You must be running in administrator for this to work\nPlease rerun with appropriate credentials");
-                    Console.WriteLine("Press any key to continue...");
-                    Console.ReadLine();
-                    Environment.Exit(0);
+                    Console.WriteLine("Console execution error: " + e);
                 }
             }
             else
@@ -151,6 +169,7 @@ namespace ECSSS_Documenter
         }
     }
 
+
     /// <summary>
     /// Class:  FileSystem
     /// Description:  Crawls the root directory and creates a list containing sublists
@@ -163,7 +182,7 @@ namespace ECSSS_Documenter
         private string[] targetDirectories { get; set; }
         private string[] targetExtensions { get; set; }
         public List<string> files { get; set; }
-        public string root {get; private set; }
+        public string root { get; private set; }
 
         /// <summary>
         /// Public constructor initializes root directory structure
@@ -181,18 +200,18 @@ namespace ECSSS_Documenter
         {
             List<string> rootFiles = new List<string>();
             List<string> rootDirs = Directory.GetDirectories(root).ToList();
-            
-            // Remove all directories except those contained in the targetDirectories array
-            rootDirs.RemoveAll(r => !targetDirectories.Any(r.Substring(r.LastIndexOf('\\') + 1, r.Length - r.LastIndexOf('\\') - 1).Contains));
 
-            Parallel.ForEach(rootDirs, currentDirectory =>
+            // Remove all directories except those contained in the targetDirectories array
+            //rootDirs.RemoveAll(r => !targetDirectories.Any(r.Substring(r.LastIndexOf('\\') + 1, r.Length - r.LastIndexOf('\\') - 1).Contains));
+
+            foreach (string currentDirectory in rootDirs)
             {
                 // Recursively continue iterating through the filesystem by creating new instances of the FileSystem class for each
                 // subdirectory beneath the root directory
                 FileSystem fs = new FileSystem(currentDirectory, this.targetExtensions, this.targetDirectories);
                 // retrieve all files from subdirectories
                 rootFiles = rootFiles.Union(fs.files).ToList();
-            });
+            }
 
             // Add all files in root directory
             foreach (string s in getRootPathFiles())
@@ -238,10 +257,6 @@ namespace ECSSS_Documenter
         public int calculateDirectoryDepth()
         {
             return root.Count(r => r == '\\') - 1;
-        }
-
-        public void testParallelImplementation()
-        {
         }
     }
 }
