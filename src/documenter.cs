@@ -8,6 +8,7 @@ using System.Web;
 using System.Runtime.Serialization;
 using System.Diagnostics;
 using System.Security.Principal;
+using System.Threading.Tasks;
 
 namespace ECSSS_Documenter
 {
@@ -60,14 +61,14 @@ namespace ECSSS_Documenter
         /// <param name="fs"></param>
         public void copyFilesToDocDirectory(FileSystem fs)
         {
-            foreach (string s in fs.files)
+            foreach (string currentFile in fs.files)
             {
-                string str = s.Replace('\\', '.');
+                string str = currentFile.Replace('\\', '.');
                 str = str.Remove(0, str.IndexOf("csss") + 5);
                 if (File.Exists(docs_root_destination + str))
                     File.Delete(docs_root_destination + str);
-                File.Copy(s, docs_root_destination + str);
-                Console.WriteLine("{0} copied to {1}", s, docs_root_destination + str);
+                File.Copy(currentFile, docs_root_destination + str);
+                Console.WriteLine("{0} copied to {1}", currentFile, docs_root_destination + str);
                 this.runDocco(str);
             }
         }
@@ -135,7 +136,7 @@ namespace ECSSS_Documenter
             catch (Exception e)
             {
                 Console.WriteLine("Batch file creation error:  " + e.Message);
-                Console.WriteLine("Current Directory: " + Directory.GetCurrentDirectory());
+                Console.WriteLine("Batch file for " + file + " may not have been created properly");
             }
         }
 
@@ -184,14 +185,14 @@ namespace ECSSS_Documenter
             // Remove all directories except those contained in the targetDirectories array
             rootDirs.RemoveAll(r => !targetDirectories.Any(r.Substring(r.LastIndexOf('\\') + 1, r.Length - r.LastIndexOf('\\') - 1).Contains));
 
-            foreach (string s in rootDirs)
+            Parallel.ForEach(rootDirs, currentDirectory =>
             {
                 // Recursively continue iterating through the filesystem by creating new instances of the FileSystem class for each
                 // subdirectory beneath the root directory
-                FileSystem fs = new FileSystem(s, this.targetExtensions, this.targetDirectories);
+                FileSystem fs = new FileSystem(currentDirectory, this.targetExtensions, this.targetDirectories);
                 // retrieve all files from subdirectories
                 rootFiles = rootFiles.Union(fs.files).ToList();
-            }
+            });
 
             // Add all files in root directory
             foreach (string s in getRootPathFiles())
@@ -237,6 +238,10 @@ namespace ECSSS_Documenter
         public int calculateDirectoryDepth()
         {
             return root.Count(r => r == '\\') - 1;
+        }
+
+        public void testParallelImplementation()
+        {
         }
     }
 }
